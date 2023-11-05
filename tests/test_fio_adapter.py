@@ -36,7 +36,7 @@ def test_fio_adapter_otherstatus(requests_mock) -> None:
     (status, data) = adapter._do("get", url, err_codes=[300])
 
     assert status == 204
-    assert data == None
+    assert data is None
 
 
 def test_fio_adapter_request_exceptions(requests_mock) -> None:
