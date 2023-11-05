@@ -24,7 +24,7 @@ def validate_ticker(material_ticker: str) -> None:
     if len(material_ticker) > 3:
         raise MaterialTickerInvalid("Material ticker can't be longer than 3 characters")
 
-    if len(material_ticker) < 1:
+    if not material_ticker:
         raise MaterialTickerInvalid(
             "Material ticker can't be shorter than 1 characters"
         )
@@ -54,7 +54,7 @@ def validate_exchange_code(exchange_code: str) -> None:
 
 
 def validate_company_code(company_code: str) -> None:
-    if company_code == "" or company_code is None:
+    if not company_code or company_code is None:
         raise CompanyCodeInvalid("Invalid company code. Can't be empty or None type")
 
     if len(company_code) > 4:
@@ -73,7 +73,7 @@ def validate_localmarket_adtype(adtype: str) -> None:
         "SHIPPING",
     ]
 
-    if not adtype in accepted_types:
+    if adtype not in accepted_types:
         raise InvalidAdType("Invalid ad type")
 
 
@@ -84,18 +84,10 @@ def validate_planet_search_materials(materials: List[str]) -> bool:
     if len(materials) > 4:
         return False
 
-    for material in materials:
-        if len(material) == 0 or len(material) > 3:
-            return False
-
-    return True
+    return not any(
+        len(material) == 0 or len(material) > 3 for material in materials
+    )
 
 
 def validate_planet_search_distance_checks(distance_checks: List[str]) -> bool:
-    if distance_checks is None:
-        return False
-
-    if len(distance_checks) > 3:
-        return False
-
-    return True
+    return False if distance_checks is None else len(distance_checks) <= 3

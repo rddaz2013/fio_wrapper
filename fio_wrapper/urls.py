@@ -39,20 +39,20 @@ class URLs:
         return self.base_url + self.material_base
 
     def material_get_url(self, material_ticker: str) -> str:
-        return self.material_url() + "/" + material_ticker
+        return f"{self.material_url()}/{material_ticker}"
 
     def material_allmaterials_url(self) -> str:
         return self.material_url() + self.material_allmaterials
 
     def material_get_category(self, category_name: str) -> str:
-        return self.material_url() + "/category/" + category_name
+        return f"{self.material_url()}/category/{category_name}"
 
     # Exchange
     def exchange_url(self) -> str:
         return self.base_url + self.exchange_base
 
     def exchange_get_url(self, exchange_ticker: str) -> str:
-        return self.exchange_url() + "/" + exchange_ticker
+        return f"{self.exchange_url()}/{exchange_ticker}"
 
     def exchange_get_all_url(self) -> str:
         return self.exchange_url() + self.exchange_all
@@ -80,7 +80,7 @@ class URLs:
         return self.base_url + self.building_base
 
     def building_get_url(self, building_ticker: str) -> str:
-        return self.building_url() + "/" + building_ticker
+        return f"{self.building_url()}/{building_ticker}"
 
     def building_get_all_url(self) -> str:
         return self.building_url() + self.building_all
@@ -90,7 +90,7 @@ class URLs:
         return self.base_url + self.recipe_base
 
     def recipe_get_url(self, material_ticker: str) -> str:
-        return self.recipe_url() + "/" + material_ticker
+        return f"{self.recipe_url()}/{material_ticker}"
 
     def recipe_get_all_url(self) -> str:
         return self.recipe_url() + self.recipe_all
@@ -101,7 +101,7 @@ class URLs:
         return self.base_url + self.planet_base
 
     def planet_get_url(self, planet: str) -> str:
-        return self.planet_url() + "/" + planet
+        return f"{self.planet_url()}/{planet}"
 
     def planet_all_url(self) -> str:
         return self.planet_url() + self.planet_all

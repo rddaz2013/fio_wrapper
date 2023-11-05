@@ -47,11 +47,8 @@ class FIOAdapter:
 
             if response.status_code == 200:
                 return 200, response.json()
-            elif response.status_code in err_codes:
-                return response.status_code, None
             else:
                 return response.status_code, None
-
         except requests.exceptions.Timeout as errt:
             raise requests.exceptions.Timeout() from errt
         except requests.exceptions.TooManyRedirects as errr:
