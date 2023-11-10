@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional
 from fio_wrapper.exceptions import (
     InvalidAdType,
     MaterialTickerInvalid,
@@ -24,7 +24,7 @@ def validate_ticker(material_ticker: str) -> None:
     if len(material_ticker) > 3:
         raise MaterialTickerInvalid("Material ticker can't be longer than 3 characters")
 
-    if not material_ticker:
+    if len(material_ticker) < 1:
         raise MaterialTickerInvalid(
             "Material ticker can't be shorter than 1 characters"
         )
@@ -42,8 +42,8 @@ def validate_exchange_code(exchange_code: str) -> None:
 
     # first 2 characters must be str
     if (
-        type(exchange_code[0]) != str
-        or type(exchange_code[1]) != str
+        not isinstance(exchange_code[0], str)
+        or not isinstance(exchange_code[1], str)
         or not exchange_code[2].isnumeric()
     ):
         raise ExchangeTickerInvalid(
@@ -54,7 +54,7 @@ def validate_exchange_code(exchange_code: str) -> None:
 
 
 def validate_company_code(company_code: str) -> None:
-    if not company_code or company_code is None:
+    if company_code == "" or company_code is None:
         raise CompanyCodeInvalid("Invalid company code. Can't be empty or None type")
 
     if len(company_code) > 4:
@@ -77,17 +77,33 @@ def validate_localmarket_adtype(adtype: str) -> None:
         raise InvalidAdType("Invalid ad type")
 
 
-def validate_planet_search_materials(materials: List[str]) -> bool:
+def validate_planet_search_materials(materials: Optional[List[str]]) -> bool:
     if materials is None:
         return False
 
     if len(materials) > 4:
         return False
 
-    return not any(
-        len(material) == 0 or len(material) > 3 for material in materials
-    )
+    for material in materials:
+        # ensure material is str and length max 3 char
+        if not isinstance(material, str) or len(material) == 0 or len(material) > 3:
+            return False
+
+    return True
 
 
-def validate_planet_search_distance_checks(distance_checks: List[str]) -> bool:
-    return False if distance_checks is None else len(distance_checks) <= 3
+def validate_planet_search_distance_checks(
+    distance_checks: Optional[List[str]],
+) -> bool:
+    if distance_checks is None:
+        return False
+
+    if len(distance_checks) > 3:
+        return False
+
+    # ensure all distances are str
+    for distance in distance_checks:
+        if not isinstance(distance, str):
+            return False
+
+    return True

@@ -1,76 +1,102 @@
-# Not Implemented
+# Generic
 
 
 class EndpointNotImplemented(Exception):
-    pass
+    """Endpoint is not implemented in fio_wrapper"""
+
+
+class NoAPIKeyProvided(Exception):
+    """No FIO API Key was provided, but endpoint requires key"""
+
+
+class NotAuthenticated(Exception):
+    """FIO returned failed authentication"""
+
+
+class UnknownFIOResponse(Exception):
+    """FIO returned a unknown response"""
 
 
 # Material
 
 
 class MaterialTickerInvalid(Exception):
-    pass
+    """Invalid Material Ticker provided"""
 
 
 class MaterialTickerNotFound(Exception):
-    pass
+    """Material Ticker not found"""
 
 
 class MaterialCategoryNotFound(Exception):
-    pass
+    """Material Category not found"""
 
 
 # Exchange
 
 
 class ExchangeTickerInvalid(Exception):
-    pass
+    """Exchange ticker invalid"""
 
 
 class ExchangeTickerNotFound(Exception):
-    pass
+    """Exchange ticker not found"""
 
 
 class CompanyCodeInvalid(Exception):
-    pass
+    """Company code invalid"""
 
 
 # Building
 
 
 class BuildingTickerNotFound(Exception):
-    pass
+    """Building ticker not found"""
 
 
 # Planet
 
 
 class PlanetNotFound(Exception):
-    pass
+    """Planet not found"""
 
 
 class PlanetSearchMaterialsInvalid(Exception):
-    pass
+    """Planet search material ticker provided invalid"""
 
 
 class PlanetSearchDistanceChecksInvalid(Exception):
-    pass
+    """Planet search invalid distance checks"""
 
 
 class PlanetSearchInvalidRequest(Exception):
-    pass
+    """Planet search request invalid"""
 
 
 # LocalMarket
 
 
 class InvalidAdType(Exception):
-    pass
+    """Ad type invalid"""
 
 
 class PlanetOrAdsNotFound(Exception):
-    pass
+    """Planet or ads not found"""
 
 
 class CompanyOrAdsNotFound(Exception):
-    pass
+    """Company or ads not found"""
+
+
+# Sites
+
+
+class NoSiteData(Exception):
+    """No site data found"""
+
+
+# Storage
+
+
+class NoStorageData(Exception):
+    """No storage data found"""

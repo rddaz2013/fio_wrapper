@@ -182,3 +182,6 @@ newrelic.ini
 *.priv
 
 letsencrypt/*
+
+example/config.py
+config.py
