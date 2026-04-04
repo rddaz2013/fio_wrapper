@@ -1,6 +1,6 @@
 from typing import List, Optional
 from datetime import datetime, timedelta
-from pydantic import BaseModel, RootModel, Field, AwareDatetime, NaiveDatetime
+from pydantic import BaseModel, RootModel, Field, AwareDatetime
 
 
 class GroupAdmin(BaseModel):
@@ -116,7 +116,7 @@ class ShipCargo(BaseModel):
     PlayerName: str
     StorageType: str
     Items: List[StorageItem]
-    LastUpdated: NaiveDatetime
+    LastUpdated: AwareDatetime
 
 
 class ShipFlightSegment(BaseModel):
@@ -147,7 +147,7 @@ class ShipFlight(BaseModel):
     StlDistance: float
     FtlDistance: float
     IsAborted: bool
-    Timestamp: NaiveDatetime
+    Timestamp: AwareDatetime
 
 
 class PlayerShip(BaseModel):
@@ -167,13 +167,13 @@ class PlayerShip(BaseModel):
     Fuel: ShipFuel
     Cargo: ShipCargo
 
-    LastUpdated: NaiveDatetime
+    LastUpdated: AwareDatetime
 
 
 class Currency(BaseModel):
     CurrencyName: str
     Amount: float
-    LastUpdated: NaiveDatetime
+    LastUpdated: AwareDatetime
 
 
 class Material(BaseModel):
@@ -188,10 +188,10 @@ class ProductionLine(BaseModel):
     Halted: bool
     Recurring: bool
     OrderDuration: timedelta
-    TimeCompletion: NaiveDatetime
+    TimeCompletion: AwareDatetime
     Inputs: List[Material]
     Outputs: List[Material]
-    LastUpdated: NaiveDatetime
+    LastUpdated: AwareDatetime
     BuildingName: str
     BuildingTicker: str = Field(max_length=3)
     Capacity: int
@@ -212,7 +212,7 @@ class Storage(BaseModel):
     PlayerName: str
     StorageType: str
     Items: List[Material]
-    LastUpdated: NaiveDatetime
+    LastUpdated: AwareDatetime
 
 
 class Location(BaseModel):
@@ -257,8 +257,8 @@ class Burn(BaseModel):
     PlanetId: Optional[str] = Field(min_length=32)
     PlanetName: Optional[str]
     PlanetNaturalId: Optional[str]
-    PlanetConsumptionTime: Optional[NaiveDatetime]
-    LastUpdate: NaiveDatetime
+    PlanetConsumptionTime: Optional[AwareDatetime]
+    LastUpdate: AwareDatetime
     LastUpdateCause: Optional[str]
 
     Inventory: List[Inventory]

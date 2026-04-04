@@ -1,6 +1,6 @@
 from typing import List, Optional
 from datetime import datetime
-from pydantic import BaseModel, RootModel, Field, NaiveDatetime
+from pydantic import BaseModel, RootModel, Field, AwareDatetime
 
 
 class StorageItem(BaseModel):
@@ -29,7 +29,7 @@ class Storage(BaseModel):
     WeightCapacity: int
     VolumeCapacity: int
     UserNameSubmitted: str
-    Timestamp: NaiveDatetime
+    Timestamp: AwareDatetime
 
 
 class StorageList(RootModel):

@@ -1,5 +1,5 @@
 from typing import List, Optional
-from pydantic import BaseModel, RootModel, Field, NaiveDatetime
+from pydantic import BaseModel, RootModel, Field, AwareDatetime
 
 
 class BuildingRecipeIO(BaseModel):
@@ -43,7 +43,7 @@ class BuildingTicker(BaseModel):
     Scientists: int
     AreaCost: int
     UserNameSubmitted: str
-    Timestamp: NaiveDatetime
+    Timestamp: AwareDatetime
 
 
 class BuildingTickerList(RootModel):

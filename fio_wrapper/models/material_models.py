@@ -1,5 +1,5 @@
 from typing import List
-from pydantic import BaseModel, RootModel, Field, NaiveDatetime
+from pydantic import BaseModel, RootModel, Field, AwareDatetime
 
 
 class MaterialTicker(BaseModel):
@@ -11,7 +11,7 @@ class MaterialTicker(BaseModel):
     Weight: float
     Volume: float
     UserNameSubmitted: str
-    Timestamp: NaiveDatetime
+    Timestamp: AwareDatetime
 
 
 class MaterialTickerList(RootModel):

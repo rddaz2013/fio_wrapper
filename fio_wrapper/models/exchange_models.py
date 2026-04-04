@@ -1,6 +1,6 @@
 from typing import List, Optional
 from datetime import datetime
-from pydantic import BaseModel, RootModel, Field, NaiveDatetime
+from pydantic import BaseModel, RootModel, Field, AwareDatetime
 
 # Exchange
 
@@ -57,7 +57,7 @@ class ExchangeTickerFull(ExchangeTicker):
     WidePriceBandLow: Optional[float]
     WidePriceBandHigh: Optional[float]
     UserNameSubmitted: str
-    Timestamp: NaiveDatetime
+    Timestamp: AwareDatetime
 
 
 class ExchangeTickerFullList(RootModel):

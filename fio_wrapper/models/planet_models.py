@@ -1,5 +1,5 @@
 from typing import List, Optional
-from pydantic import BaseModel, RootModel, Field, NaiveDatetime
+from pydantic import BaseModel, RootModel, Field, AwareDatetime
 from datetime import datetime
 
 
@@ -105,7 +105,7 @@ class PlanetFull(Planet):
     COGCProgramStatus: Optional[str]
     PlanetTier: int
     UserNameSubmitted: str
-    Timestamp: NaiveDatetime
+    Timestamp: AwareDatetime
     DistanceResults: Optional[List[int]] = Field(default=None)
 
 

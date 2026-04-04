@@ -1,6 +1,6 @@
 from typing import List, Optional
 from datetime import datetime
-from pydantic import BaseModel, RootModel, Field, NaiveDatetime
+from pydantic import BaseModel, RootModel, Field, AwareDatetime
 
 
 class SiteBuildingMaterial(BaseModel):
@@ -34,7 +34,7 @@ class Site(BaseModel):
     InvestedPermits: int
     MaximumPermits: int
     UserNameSubmitted: str
-    Timestamp: NaiveDatetime
+    Timestamp: AwareDatetime
 
 
 class SiteList(RootModel):
@@ -59,7 +59,7 @@ class Warehouse(BaseModel):
     LocationName: str
     LocationNaturalId: str
     UserNameSubmitted: str
-    Timestamp: NaiveDatetime
+    Timestamp: AwareDatetime
 
 
 class WarehouseList(RootModel):
