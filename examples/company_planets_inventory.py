@@ -32,28 +32,36 @@ def print_section(title: str, level: int = 1):
 def setup_demo_companies(multi_fio: MultiCompanyFIO):
     """Erstellt Demo-Companies für das Beispiel.
 
-    In der Praxis würden die API-Keys aus Umgebungsvariablen
+    In der Praxis würden die API-Keys und Usernames aus Umgebungsvariablen
     oder dem CredentialManager geladen werden.
+
+    Hinweis: CompanyName und Username sind in FIO unterschiedliche Werte.
+    CompanyName ist der Anzeigename der Firma, Username ist der
+    FIO-Account-Name, der für API-Aufrufe wie /sites und /storage benötigt wird.
     """
-    # API-Keys aus Umgebungsvariablen lesen (oder Demo-Werte verwenden)
+    # API-Keys und Usernames aus Umgebungsvariablen lesen (oder Demo-Werte)
     api_key_1 = os.environ.get("FIO_API_KEY_COMP1", "demo_key_comp1")
     api_key_2 = os.environ.get("FIO_API_KEY_COMP2", "demo_key_comp2")
+    username_1 = os.environ.get("FIO_USERNAME_COMP1", "miner_player")
+    username_2 = os.environ.get("FIO_USERNAME_COMP2", "trader_player")
 
-    # Company 1 hinzufügen
+    # Company 1 hinzufügen (username ist der FIO-Login-Name)
     multi_fio.add_company(
         company_code="MINER",
         company_name="Galactic Mining Corp",
         api_key=api_key_1,
+        username=username_1,
     )
-    print("  ✓ MINER: Galactic Mining Corp hinzugefügt")
+    print("  ✓ MINER: Galactic Mining Corp (User: {}) hinzugefügt".format(username_1))
 
     # Company 2 hinzufügen
     multi_fio.add_company(
         company_code="TRADE",
         company_name="Stellar Trading Co",
         api_key=api_key_2,
+        username=username_2,
     )
-    print("  ✓ TRADE: Stellar Trading Co hinzugefügt")
+    print("  ✓ TRADE: Stellar Trading Co (User: {}) hinzugefügt".format(username_2))
 
 
 def demo_planeten_daten(multi_fio: MultiCompanyFIO, company_code: str):
@@ -83,8 +91,11 @@ def demo_planeten_daten(multi_fio: MultiCompanyFIO, company_code: str):
     fio = multi_fio.get_company_fio(company_code)
     if fio:
         try:
-            # Sites.planets() gibt eine Liste von SiteIds zurück
-            username = company_data.CompanyName  # oder ein separater Username
+            # Sites.planets() erwartet den FIO-Username, NICHT den CompanyName
+            username = company_data.Username
+            if not username:
+                print(f"\n    ⚠ Kein Username konfiguriert – FIO Sites-Abfrage übersprungen")
+                return
             site_planets = fio.Sites.planets(username=username)
             print(f"\n    FIO Sites-Planeten ({len(site_planets)}):")
             for site_id in site_planets:
@@ -126,7 +137,11 @@ def demo_inventar_daten(multi_fio: MultiCompanyFIO, company_code: str):
     fio = multi_fio.get_company_fio(company_code)
     if fio:
         try:
-            username = company_data.CompanyName
+            # Storage.get() erwartet den FIO-Username, NICHT den CompanyName
+            username = company_data.Username
+            if not username:
+                print(f"\n    ⚠ Kein Username konfiguriert – FIO Storage-Abfrage übersprungen")
+                return
             storages = fio.Storage.get(username=username)
             print(f"\n    FIO Storage-Daten:")
             for storage in storages:
@@ -169,7 +184,8 @@ def main():
     for code in companies:
         data = multi_fio.get_company_data(code)
         if data:
-            print(f"    • {data.CompanyName} (Code: {code})")
+            user_info = f", User: {data.Username}" if data.Username else ""
+            print(f"    • {data.CompanyName} (Code: {code}{user_info})")
 
     # ──────────────────────────────────────────────
     # 3. Demo-Daten für Planeten und Inventar laden

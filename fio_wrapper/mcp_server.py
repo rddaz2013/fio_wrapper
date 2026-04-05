@@ -111,11 +111,12 @@ class MCPServer:
                     "type": "object",
                     "properties": {
                         "company_code": {"type": "string", "description": "Unique company code"},
-                        "company_name": {"type": "string", "description": "Company name"},
+                        "company_name": {"type": "string", "description": "Company display name"},
                         "api_key": {"type": "string", "description": "Primary API key"},
-                        "api_key2": {"type": "string", "description": "Secondary API key (optional)"}
+                        "api_key2": {"type": "string", "description": "Secondary API key (optional)"},
+                        "username": {"type": "string", "description": "FIO username for API calls (distinct from company name, required for Sites/Storage endpoints)"}
                     },
-                    "required": ["company_code", "company_name", "api_key"]
+                    "required": ["company_code", "company_name", "api_key", "username"]
                 }
             },
             "switch_company": {
@@ -242,9 +243,12 @@ class MCPServer:
         company_name = args.get("company_name")
         api_key = args.get("api_key")
         api_key2 = args.get("api_key2")
+        username = args.get("username")
         
-        # Store credentials
-        success = self.credential_manager.store_credentials(company_code, api_key, api_key2)
+        # Store credentials (including username)
+        success = self.credential_manager.store_credentials(
+            company_code, api_key, api_key2, username=username
+        )
         if not success:
             return {"error": "Failed to store credentials"}
         
@@ -252,7 +256,9 @@ class MCPServer:
         self.initialize_multi_company()
         
         # Add company
-        self.multi_company_fio.add_company(company_code, company_name, api_key, api_key2)
+        self.multi_company_fio.add_company(
+            company_code, company_name, api_key, api_key2, username=username
+        )
         
         return {"result": f"Company {company_code} added successfully"}
     

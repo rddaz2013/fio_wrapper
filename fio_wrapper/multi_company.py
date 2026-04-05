@@ -28,13 +28,17 @@ class MultiCompanyFIO:
         >>> cred_mgr = CredentialManager()
         >>> multi_fio = MultiCompanyFIO(cred_mgr)
         >>> 
-        >>> # Add companies
-        >>> multi_fio.add_company("COMP1", "Company One", "api_key_1", "api_key2_1")
-        >>> multi_fio.add_company("COMP2", "Company Two", "api_key_2", "api_key2_2")
+        >>> # Add companies (username is the FIO login name, distinct from company_name)
+        >>> multi_fio.add_company("COMP1", "Company One", "api_key_1", username="player1")
+        >>> multi_fio.add_company("COMP2", "Company Two", "api_key_2", username="player2")
         >>> 
         >>> # Switch between companies
         >>> multi_fio.set_active_company("COMP1")
         >>> material = multi_fio.get_active_fio().Material.get("DW")
+        >>> 
+        >>> # Get the FIO username for API calls that need it
+        >>> username = multi_fio.get_active_username()
+        >>> sites = multi_fio.get_active_fio().Sites.planets(username=username)
     """
     
     def __init__(self, credential_manager: CredentialManager):
@@ -55,12 +59,13 @@ class MultiCompanyFIO:
         company_codes = self.credential_manager.list_companies()
         
         for company_code in company_codes:
-            api_key, api_key2 = self.credential_manager.get_credentials(company_code)
+            api_key, api_key2, username = self.credential_manager.get_credentials(company_code)
             if api_key:
                 # Create CompanyData object
                 company_data = CompanyData(
                     CompanyName=company_code,  # Will be updated when we fetch company info
-                    CompanyCode=company_code
+                    CompanyCode=company_code,
+                    Username=username
                 )
                 self.config.add_company(company_code, company_data)
                 
@@ -70,26 +75,34 @@ class MultiCompanyFIO:
                 logger.info(f"Loaded company: {company_code}")
     
     def add_company(self, company_code: str, company_name: str, 
-                   api_key: str, api_key2: Optional[str] = None) -> bool:
+                   api_key: str, api_key2: Optional[str] = None,
+                   username: Optional[str] = None) -> bool:
         """Add a new company
         
         Args:
             company_code: Unique company code
-            company_name: Company name
+            company_name: Company display name
             api_key: Primary API key
             api_key2: Secondary API key (optional)
+            username: FIO username for API calls (optional). This is the
+                      actual FIO account username, which is distinct from
+                      the company name. Required for endpoints like
+                      /sites/planets/{username} and /storage/{username}.
             
         Returns:
             True if successful
         """
         try:
-            # Store credentials
-            self.credential_manager.store_credentials(company_code, api_key, api_key2)
+            # Store credentials (including username)
+            self.credential_manager.store_credentials(
+                company_code, api_key, api_key2, username=username
+            )
             
             # Create company data
             company_data = CompanyData(
                 CompanyName=company_name,
-                CompanyCode=company_code
+                CompanyCode=company_code,
+                Username=username
             )
             self.config.add_company(company_code, company_data)
             
@@ -187,6 +200,34 @@ class MultiCompanyFIO:
             FIO instance or None
         """
         return self.fio_instances.get(company_code)
+    
+    def get_company_username(self, company_code: str) -> Optional[str]:
+        """Get the FIO username for a specific company
+        
+        The username is needed for FIO API endpoints that require a user
+        identifier (e.g., /sites/planets/{username}, /storage/{username}).
+        This is distinct from the CompanyName.
+        
+        Args:
+            company_code: Company code
+            
+        Returns:
+            FIO username or None if not set
+        """
+        company_data = self.config.get_company(company_code)
+        if company_data:
+            return company_data.Username
+        return None
+    
+    def get_active_username(self) -> Optional[str]:
+        """Get the FIO username for the currently active company
+        
+        Returns:
+            FIO username or None
+        """
+        if self.config.active_company:
+            return self.get_company_username(self.config.active_company)
+        return None
     
     def list_companies(self) -> list:
         """List all registered companies

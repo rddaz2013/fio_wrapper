@@ -9,7 +9,7 @@ companies/users. It supports:
 import os
 import json
 import logging
-from typing import Dict, Optional, Tuple
+from typing import Dict, Optional, Tuple, NamedTuple
 from pathlib import Path
 from cryptography.fernet import Fernet
 import base64
@@ -22,11 +22,19 @@ class CredentialManager:
     """Manages secure storage and retrieval of API credentials
     
     This class supports multiple storage backends:
-    1. Environment variables (FIO_API_KEY_<COMPANY_CODE>, FIO_API_KEY2_<COMPANY_CODE>)
+    1. Environment variables (FIO_API_KEY_<COMPANY_CODE>, FIO_API_KEY2_<COMPANY_CODE>,
+       FIO_USERNAME_<COMPANY_CODE>)
     2. Encrypted JSON file (~/.fio_wrapper/credentials.enc)
     3. System keyring (if keyring package is installed)
     
-    Each company can have two API keys for different purposes.
+    Each company stores three pieces of information together:
+    - API key (primary authentication)
+    - API key 2 (secondary, optional)
+    - Username (the FIO username required for API endpoints like Sites and Storage)
+    
+    Note: CompanyName and Username are separate entities in FIO. Many API endpoints
+    (e.g., /sites/planets/{username}, /storage/{username}) require the FIO username,
+    not the company name.
     """
     
     def __init__(self, config_dir: Optional[Path] = None, encryption_key: Optional[str] = None):
@@ -81,13 +89,17 @@ class CredentialManager:
             os.chmod(key_file, 0o600)
             return key
     
-    def store_credentials(self, company_code: str, api_key: str, api_key2: Optional[str] = None) -> bool:
+    def store_credentials(self, company_code: str, api_key: str, 
+                         api_key2: Optional[str] = None,
+                         username: Optional[str] = None) -> bool:
         """Store API credentials for a company
         
         Args:
             company_code: Unique company identifier
             api_key: Primary API key
             api_key2: Secondary API key (optional)
+            username: FIO username for API calls (optional, required for
+                      endpoints like Sites and Storage that need a username)
             
         Returns:
             True if successful
@@ -99,7 +111,8 @@ class CredentialManager:
             # Store credentials
             credentials[company_code] = {
                 "api_key": api_key,
-                "api_key2": api_key2
+                "api_key2": api_key2,
+                "username": username
             }
             
             # Save to encrypted file
@@ -111,6 +124,8 @@ class CredentialManager:
                     self.keyring.set_password("fio_wrapper", f"{company_code}_key1", api_key)
                     if api_key2:
                         self.keyring.set_password("fio_wrapper", f"{company_code}_key2", api_key2)
+                    if username:
+                        self.keyring.set_password("fio_wrapper", f"{company_code}_username", username)
                 except Exception as e:
                     logger.warning(f"Could not save to keyring: {e}")
             
@@ -119,7 +134,7 @@ class CredentialManager:
             logger.error(f"Error storing credentials: {e}")
             return False
     
-    def get_credentials(self, company_code: str) -> Tuple[Optional[str], Optional[str]]:
+    def get_credentials(self, company_code: str) -> Tuple[Optional[str], Optional[str], Optional[str]]:
         """Retrieve API credentials for a company
         
         Checks in order:
@@ -131,22 +146,24 @@ class CredentialManager:
             company_code: Company identifier
             
         Returns:
-            Tuple of (api_key, api_key2)
+            Tuple of (api_key, api_key2, username)
         """
         # Check environment variables first
         env_key1 = os.environ.get(f"FIO_API_KEY_{company_code.upper()}")
         env_key2 = os.environ.get(f"FIO_API_KEY2_{company_code.upper()}")
+        env_username = os.environ.get(f"FIO_USERNAME_{company_code.upper()}")
         
         if env_key1:
-            return (env_key1, env_key2)
+            return (env_key1, env_key2, env_username)
         
         # Check keyring
         if self.use_keyring:
             try:
                 key1 = self.keyring.get_password("fio_wrapper", f"{company_code}_key1")
                 key2 = self.keyring.get_password("fio_wrapper", f"{company_code}_key2")
+                username = self.keyring.get_password("fio_wrapper", f"{company_code}_username")
                 if key1:
-                    return (key1, key2)
+                    return (key1, key2, username)
             except Exception as e:
                 logger.warning(f"Could not retrieve from keyring: {e}")
         
@@ -154,10 +171,14 @@ class CredentialManager:
         try:
             credentials = self._load_credentials_file()
             company_creds = credentials.get(company_code, {})
-            return (company_creds.get("api_key"), company_creds.get("api_key2"))
+            return (
+                company_creds.get("api_key"),
+                company_creds.get("api_key2"),
+                company_creds.get("username")
+            )
         except Exception as e:
             logger.error(f"Error retrieving credentials: {e}")
-            return (None, None)
+            return (None, None, None)
     
     def delete_credentials(self, company_code: str) -> bool:
         """Delete credentials for a company
@@ -180,6 +201,7 @@ class CredentialManager:
                 try:
                     self.keyring.delete_password("fio_wrapper", f"{company_code}_key1")
                     self.keyring.delete_password("fio_wrapper", f"{company_code}_key2")
+                    self.keyring.delete_password("fio_wrapper", f"{company_code}_username")
                 except Exception:
                     pass
             

@@ -55,9 +55,16 @@ class ShipInfo(BaseModel):
 
 
 class CompanyData(BaseModel):
-    """Model for company data including all associated information"""
+    """Model for company data including all associated information
+    
+    Note: CompanyName and Username are separate entities in FIO.
+    CompanyName is the display name of the company, while Username
+    is the FIO account username required for API endpoints like
+    /sites/planets/{username} and /storage/{username}.
+    """
     CompanyName: str
     CompanyCode: str
+    Username: Optional[str] = None  # FIO username for API calls (distinct from CompanyName)
     CompanyId: Optional[str] = None
     Headquarters: Optional[str] = None
     Country: Optional[str] = None
